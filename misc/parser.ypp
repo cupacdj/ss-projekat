@@ -1,0 +1,128 @@
+%{
+  #include <iostream>
+  #include "inc/structures.hpp"
+  #include <vector>
+  #include <string>
+
+  extern int yylex();
+  void yyerror(const char* s);
+  extern int lineNum;
+%}
+
+%union {
+  int gpr;
+  int csr;
+  int number;
+  std::string label;
+  std::string symbol;
+  std::vector <std::string> symbolList;
+}
+
+%token <label> LABEL
+
+%token PLUS DOLLAR LEFT_BRACKET RIGHT_BRACKET COMMA
+       
+%token ENDL
+
+%token  INS_HALT INS_INT INS_IRET INS_CALL INS_RET INS_JMP
+        INS_BEQ INS_BNE INS_BGT INS_PUSH INS_POP INS_XCHG
+        INS_ADD INS_SUB INS_MUL INS_DIV INS_NOT INS_AND
+        INS_OR INS_XOR INS_SHL INS_SHR INS_LD INS_ST
+        INS_CSRRD INS_CSRWR
+
+%token  DIR_GLOBAL DIR_EXTERN DIR_SECTION DIR_WORD
+        DIR_SKIP DIR_END
+
+%token <number> NUMBER
+
+%token <gpr> GPR
+%token <csr> CSR
+
+%token <symbol> SYMBOL
+
+%type <symbolList> SYM_VAL_LIST
+%type <symbolList> SYMLIST
+
+%%
+
+File: 
+    File Line
+  | Line
+
+Line:
+    Instruction ENDL
+  | Directive ENDL
+  | LABEL { assembler.label($1); } ENDL
+  | LABEL { assembler.label($1); } Instruction ENDL
+  | LABEL { assembler.label($1); } Directive ENDL
+  | ENDL
+  | error ENDL { yyerror(File, "Syntax error on line"); yyclearin; yyerrok; }
+
+Instruction:
+    INS_HALT { Assembler::getInstance().parseHalt(); }
+  | INS_INT { Assembler::getInstance().parseInt(); }
+  | INS_IRET { Assembler::getInstance().parseIret(); }
+  | INS_CALL IndirOperand { Assembler::getInstance().parseCall($2); }
+  | INS_RET { Assembler::getInstance().parseRet(); }
+  | INS_JMP IndirOperand { Assembler::getInstance().parseJump(0, 0, $2, JumpType::UNCOND); }
+  | INS_BEQ GPR GPR IndirOperand { Assembler::getInstance().parseJump($2, $3, $4, JumpType::EQ); }
+  | INS_BNE GPR GPR IndirOperand { Assembler::getInstance().parseJump($2, $3, $4, JumpType::NE); }
+  | INS_BGT GPR GPR IndirOperand { Assembler::getInstance().parseJump($2, $3, $4, JumpType::GT); }
+  | INS_PUSH GPR { Assembler::getInstance().parsePush($2); }
+  | INS_POP GPR { Assembler::getInstance().parsePop($2); }
+  | INS_XCHG GPR GPR { Assembler::getInstance().parseXchg($2, $3); }
+  | INS_ADD GPR GPR { Assembler::getInstance().parseArith($2, $3, ArithType::ADD); }
+  | INS_SUB GPR GPR { Assembler::getInstance().parseArith($2, $3, ArithType::SUB); }
+  | INS_MUL GPR GPR { Assembler::getInstance().parseArith($2, $3, ArithType::MUL); }
+  | INS_DIV GPR GPR { Assembler::getInstance().parseArith($2, $3, ArithType::DIV); }
+  | INS_NOT GPR { Assembler::getInstance().parseLogi(0, $2, LogiType::NOT); }
+  | INS_AND GPR GPR { Assembler::getInstance().parseLogi($2, $3, LogiType::AND); }
+  | INS_OR GPR GPR { Assembler::getInstance().parseLogi($2, $3, LogiType::OR); }
+  | INS_XOR GPR GPR { Assembler::getInstance().parseLogi($2, $3, LogiType::XOR); }
+  | INS_SHL GPR GPR { Assembler::getInstance().parseShl($2, $3); }
+  | INS_SHR GPR GPR { Assembler::getInstance().parseShr($2, $3); }
+  | INS_LD Operand GPR { Assembler::getInstance().parseLd($2, $3); }
+  | INS_ST GPR Operand { Assembler::getInstance().parseSt($2, $3); }
+  | INS_CSRRD GPR CSR { Assembler::getInstance().parseCsrrd($2, $3); }
+  | INS_CSRWR CSR GPR { Assembler::getInstance().parseCsrwr($2, $3); }
+  | error { yyerror(File, "Invalid instruction"); yyclearin; yyerrok; }
+
+Directive:
+    DIR_GLOBAL SYMLIST { Assembler::getInstance().parseGlobal($2); }
+  | DIR_EXTERN SYMLIST { Assembler::getInstance().parseExtern($2); }
+  | DIR_SECTION SYMBOL { Assembler::getInstance().parseSection($2); }
+  | DIR_WORD SYM_VAL_LIST { Assembler::getInstance().parseWord($2); }
+  | DIR_SKIP NUMBER { Assembler::getInstance().parseSkip($2); }
+  | DIR_END { Assembler::getInstance().parseEnd(); }
+  | error { yyerror(File, "Invalid directive"); yyclearin; yyerrok; }
+
+IndirOperand:
+    SYMBOL
+  | NUMBER
+
+Operand:
+    GPR
+  | NUMBER
+  | LEFT_BRACKET GPR RIGHT_BRACKET
+  | LEFT_BRACKET GPR PLUS NUMBER RIGHT_BRACKET
+  | DOLLAR NUMBER
+  | DOLLAR SYMBOL
+  | SYMBOL
+  | NUMBER
+
+
+SYM_VAL_LIST:
+    SYM_VAL_LIST COMMA SYMBOL { $$ = $1; $$.push_back($3); }
+  | SYM_VAL_LIST COMMA NUMBER {$$ = $1; $$.push_back(to_string($3));}
+  | SYMBOL { $$.push_back($1); }
+
+SYMLIST:
+    SYMLIST COMMA SYMBOL { $$ = $1; $$.push_back($3); }
+  | SYMBOL { $$.push_back($1); }
+
+%%
+
+void yyerror(const char *s) {
+  cout << "Parsing error at line: " << line_num << endl;
+  exit(-1);
+}
