@@ -18,6 +18,10 @@
 #.*                             { return COMMENT; }
 
 [a-zA-Z_][a-zA-Z_0-9]*[ \t]*:   { yylval.strVal = strdup(yytext); 
+                                  char *colon_pos = strchr(yylval.strVal, ':');
+                                  if (colon_pos != NULL) {
+                                    *colon_pos = '\0';
+                                  }
                                   if (yylval.strVal == NULL) {
                                     fprintf(stderr, "Greška u alokaciji memorije\n");                                        
                                     exit(1);  
@@ -63,7 +67,7 @@
 ".section"                      { return DIR_SECTION; }
 ".word"                         { return DIR_WORD; }
 ".skip"                         { return DIR_SKIP; }
-".end"                          { return DIR_END; }
+".end"                          { return YYEOF; }
 
 -?[1-9][0-9]*                   { yylval.number = atoi(yytext); return NUMBER; }
 0[0-7]*                         { yylval.number = strtol(yytext, NULL, 8); return NUMBER; }

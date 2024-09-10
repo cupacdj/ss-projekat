@@ -1,7 +1,8 @@
 SOURCE_ASSEMBLER = \
 misc/lex.yy.cpp \
 misc/parser.tab.cpp \
-src/assembler.cpp
+src/assembler.cpp \
+src/assemblerMain.cpp
 
 GEN_INCLUDE_ASSEMBLER = \
 misc/parser.tab.hpp
@@ -23,4 +24,7 @@ install: assembler
 	cp assembler /usr/local/bin
 
 clean:
-	rm -f misc/lex.yy.cpp misc/parser.tab.cpp misc/parser.tab.hpp assembler
+	rm -f misc/lex.yy.cpp 
+	rm -f misc/parser.tab.cpp 
+	rm -f misc/parser.tab.hpp 
+	rm -f assembler

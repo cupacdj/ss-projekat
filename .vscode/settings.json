@@ -61,6 +61,12 @@
         "execution": "cpp",
         "ios": "cpp",
         "locale": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "iomanip": "cpp",
+        "stack": "cpp",
+        "chrono": "cpp",
+        "text_encoding": "cpp",
+        "fstream": "cpp",
+        "iostream": "cpp"
     }
 }

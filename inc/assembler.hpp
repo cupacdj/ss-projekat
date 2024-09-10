@@ -38,10 +38,17 @@ public:
     void parseSection(std::string section);
     void parseWord(std::vector <std::string> symbols);
     void parseSkip(uint8_t num);
-    void parseEnd();
 
 private:
     Assembler() {}
+
+    std::map<std::string, Symbol> symbolTable;
+    std::map<std::string, Section> sectionTable;
+    std::map<std::string, Relocation> relocationTable;
+    Section* currentSection;
+    uint32_t locationCnt;
+
+
 };
 
 #endif // ASSEMBLER_HPP
