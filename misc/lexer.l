@@ -1,22 +1,24 @@
 %{
-    #include <string.h>: // strdup, strchr
-    #include <stdlib.h>: // atoi and strtol
+    #define _CRT_SKIP_SECTION
+    #include <string.h> // strdup, strchr
+    #include <stdlib.h> // atoi and strtol
     #include <stdio.h>  // printf and fprintf
+    #include "unistd.h"
+    #include "parser.tab.hpp" 
 
-    lineNum = 1
+    int lineNum = 1;
 %}
 
 %option noyywrap
-%option nounput
 
 %%
 
-[ \t]                           { };
+[ \t]                           { }
 
 #.*                             { return COMMENT; }
 
-[a-zA-Z_][a-zA-Z_0-9]*[ \t]*:   { yylval.strval = strdup(yytext); 
-                                  if (yylval.strval == NULL) {
+[a-zA-Z_][a-zA-Z_0-9]*[ \t]*:   { yylval.strVal = strdup(yytext); 
+                                  if (yylval.strVal == NULL) {
                                     fprintf(stderr, "Greška u alokaciji memorije\n");                                        
                                     exit(1);  
                                 } return LABEL; }
@@ -28,10 +30,6 @@
 ","                             { return COMMA; }
 
 "\n"                            { lineNum++; return ENDL; }
-.                               {
-                                    fprintf(stderr, "Nije prepoznat karakter '%s' na liniji %d\n", yytext, lineNum);
-                                    exit(1);
-                                }
 
 "halt"                          { return INS_HALT; }
 "int"                           { return INS_INT; }
@@ -67,26 +65,30 @@
 ".skip"                         { return DIR_SKIP; }
 ".end"                          { return DIR_END; }
 
--?[0-9]+                        { yylval.numval = atoi(yytext); return NUMBER; }
-0[0-7]+                         { yylval.numval = strtol(yytext, NULL, 8); return NUMBER; }
-0x[0-9a-fA-F]+                  { yylval.numval = strtol(yytext, NULL, 16); return NUMBER; }
+-?[1-9][0-9]*                   { yylval.number = atoi(yytext); return NUMBER; }
+0[0-7]*                         { yylval.number = strtol(yytext, NULL, 8); return NUMBER; }
+0x[0-9a-fA-F]+                  { yylval.number = strtol(yytext, NULL, 16); return NUMBER; }
 
 
 
-%r[0-9]+                        { yylval.numval = atoi(yytext + 2); return GPR; }
-sp                              { yylval.numval = 14; return GPR; }
-pc                              { yylval.numval = 15; return GPR; }
+%r[0-9]+                        { yylval.number = atoi(yytext + 2); return GPR; }
+sp                              { yylval.number = 14; return GPR; }
+pc                              { yylval.number = 15; return GPR; }
 
-%status                         { yylval.numval = 0; return CSR; }
-%handler                        { yylval.numval = 1; return CSR; }
-%cause                          { yylval.numval = 2; return CSR; }
+%status                         { yylval.number = 0; return CSR; }
+%handler                        { yylval.number = 1; return CSR; }
+%cause                          { yylval.number = 2; return CSR; }
 
-[a-zA-Z._][a-zA-Z._0-9]*        { yylval.strval = strdup(yytext); 
-                                  if (yylval.strval == NULL) {
+[a-zA-Z._][a-zA-Z._0-9]*        { yylval.strVal = strdup(yytext); 
+                                  if (yylval.strVal == NULL) {
                                     fprintf(stderr, "Greška u alokaciji memorije\n");                                        
                                     exit(1);  
                                 } return SYMBOL;}
 
+                                
+.                               {
+                                    fprintf(stderr, "Nije prepoznat karakter '%s' na liniji %d\n", yytext, lineNum);
+                                    exit(1);
+                                }
+
 %%
-
-

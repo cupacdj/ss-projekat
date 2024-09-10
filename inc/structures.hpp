@@ -2,6 +2,7 @@
 #define STRUCTURES_HPP
 
 #include <string>
+#include <vector>
 
 enum class JumpType {
     UNCOND,
@@ -26,13 +27,12 @@ enum class LogiType {
 
 enum AdrType {
     IMMED,
-    SYMBOL,
+    SYMB,
     MDIR_LIT,
     MDIR_SYM,
     REG_DIR,
     REG_IND,
     REG_LIT,
-    REG_SYM
 };
 
 struct Operand {
@@ -40,7 +40,8 @@ struct Operand {
     std::string symbol;
     int reg;
     AdrType adrType;
-
 };
+
+
 
 #endif // STRUCTURES_HPP
