@@ -61,7 +61,7 @@ void Assembler::parseCall(Operand *op)
 
     if (op->adrType == AdrType::MDIR_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
 
         if (lit > 0xFFFFFFFF)
         {
@@ -121,7 +121,7 @@ void Assembler::parseJump(uint8_t gpr1, uint8_t gpr2, Operand *op, JumpType type
 
     if (op->adrType == AdrType::MDIR_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
 
         if (lit > 0xFFFFFFFF)
         {
@@ -259,7 +259,7 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
 
     if (op->adrType == AdrType::IMMED || op->adrType == AdrType::MDIR_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
 
         if (lit > 0xFFFFFFFF)
         {
@@ -304,7 +304,7 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
     }
     else if (op->adrType == AdrType::REG_IND || op->adrType == AdrType::REG_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
         uint8_t reg = op->reg;
 
         if (lit > 0xFFF)
@@ -337,7 +337,7 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
 
     if (op->adrType == AdrType::MDIR_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
 
         if (lit > 0xFFFFFFFF)
         {
@@ -364,7 +364,7 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
     }
     else if (op->adrType == AdrType::REG_IND || op->adrType == AdrType::REG_LIT)
     {
-        uint64_t lit = op->literal;
+        size_t lit = op->literal;
         uint8_t reg = op->reg;
 
         if (lit > 0xFFF)
