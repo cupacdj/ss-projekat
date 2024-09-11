@@ -46,7 +46,6 @@ private:
     std::map<std::string, Section> sectionTable;
     std::map<std::string, Relocation> relocationTable;
     Section* currentSection;
-    uint32_t locationCnt;
 
 
 };

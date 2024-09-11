@@ -3,7 +3,9 @@
 
 void Assembler::label(std::string label)
 {
-    // TODO:
+    symbolTable[label].address = currentSection->data.size();
+    symbolTable[label].isDefined = true;
+    symbolTable[label].section = currentSection->name;
 }
 
 
@@ -18,6 +20,7 @@ void Assembler::parseGlobal(std::vector<std::string> symbols)
 void Assembler::parseSection(const std::string sectionName)
 {
     currentSection = &sectionTable[sectionName];
+    currentSection->name = sectionName;
 }
 
 

@@ -28,10 +28,9 @@ struct Relocation
 
 struct Section
 {
+    std::string name;
     std::vector<uint8_t> data;
     std::vector<Relocation> relocations;
-
-    Section() : data(), relocations() {}
 
     void addData(uint32_t data)
     {
