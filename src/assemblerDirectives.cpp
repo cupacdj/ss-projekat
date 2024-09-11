@@ -45,7 +45,7 @@ void Assembler::parseWord(std::vector<std::string> symbols)
         }
         catch (...)
         {
-            currentSection->relocations.push_back({currentSection->data.size(), sym, 0});
+            currentSection->relocations.push_back({static_cast<uint32_t>(currentSection->data.size()), sym, 0});
             currentSection->addData(0);
         }
     }

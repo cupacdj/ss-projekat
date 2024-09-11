@@ -91,8 +91,8 @@ Instruction:
   | INS_SHR GPR COMMA GPR                      { assembler.parseShr($2, $4); }
   | INS_LD Operand COMMA GPR                   { assembler.parseLd(operand, $4); }
   | INS_ST GPR COMMA Operand                   { assembler.parseSt($2, operand); }
-  | INS_CSRRD GPR COMMA CSR                    { assembler.parseCsrrd($2, $4); }
-  | INS_CSRWR CSR COMMA GPR                    { assembler.parseCsrwr($2, $4); }
+  | INS_CSRRD CSR COMMA GPR                    { assembler.parseCsrrd($2, $4); }
+  | INS_CSRWR GPR COMMA CSR                    { assembler.parseCsrwr($2, $4); }
 
 
 Directive:

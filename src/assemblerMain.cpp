@@ -1,3 +1,4 @@
+#include "assembler.hpp"
 #include <iostream>
 #include <fstream>
 #include "parser.tab.hpp"
@@ -26,9 +27,12 @@ int main(int argc, char *argv[])
     }
 
     yyin = input_file;
-    try {
-    yyparse();
-    } catch (const char* msg) {
+    try
+    {
+        yyparse();
+    }
+    catch (const char *msg)
+    {
         cout << msg << endl;
         fclose(input_file);
         output_file.close();
@@ -37,8 +41,16 @@ int main(int argc, char *argv[])
 
     fclose(input_file);
 
+    Assembler &asmblr = Assembler::getInstance();
+
+    asmblr.printTables();
+
     // fix relocations of local symbols
-    // Assembler::getInstance().writeToFile(output_file);
+    asmblr.fixRelocations();
+
+    asmblr.writeToFile(output_file);
+
+    asmblr.printTables();
 
     output_file.close();
     return 0;

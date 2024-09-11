@@ -1,7 +1,9 @@
 SOURCE_ASSEMBLER = \
 misc/lex.yy.cpp \
 misc/parser.tab.cpp \
-src/assembler.cpp \
+src/assemblerDirectives.cpp \
+src/assemblerInstructions.cpp \
+src/assemblerHelper.cpp \
 src/assemblerMain.cpp
 
 GEN_INCLUDE_ASSEMBLER = \

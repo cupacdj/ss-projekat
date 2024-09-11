@@ -14,8 +14,7 @@ public:
     Assembler(Assembler const &) = delete;
     void operator=(Assembler const &) = delete;
 
-    void label(std::string label);
-
+    // instructions
     void parseHalt();
     void parseInt();
     void parseIret();
@@ -34,10 +33,17 @@ public:
     void parseCsrrd(uint8_t csr, uint8_t gpr);
     void parseCsrwr(uint8_t gpr, uint8_t csr);
     
+    // directives and label
+    void label(std::string label);
     void parseGlobal(std::vector <std::string> symbols);
     void parseSection(std::string section);
     void parseWord(std::vector <std::string> symbols);
     void parseSkip(uint8_t num);
+    
+    // helper functions
+    void printTables();
+    void writeToFile(std::ofstream &output_file);
+    void fixRelocations();
 
 private:
     Assembler() {}

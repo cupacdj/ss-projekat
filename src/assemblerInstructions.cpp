@@ -56,7 +56,6 @@ void Assembler::parseCall(Operand *op)
 
     // call mem(pc+4)
     currentSection->addData(0x00'00'00'21 | (pc << 12) | (disp << 16));
-
     // jmp pc+4
     currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
 
@@ -74,7 +73,7 @@ void Assembler::parseCall(Operand *op)
     else
     {
         std::string symbol = op->symbol;
-        currentSection->relocations.push_back(Relocation{currentSection->data.size(), symbol, 0});
+        currentSection->relocations.push_back(Relocation{static_cast<uint32_t>(currentSection->data.size()), symbol, 0});
         currentSection->addData(0);
     }
 }
@@ -96,22 +95,28 @@ void Assembler::parseJump(uint8_t gpr1, uint8_t gpr2, Operand *op, JumpType type
     if (type == JumpType::UNCOND)
     {
         // jmp mem(pc+4)
-        currentSection->addData(0x00'00'00'38 | (pc << 12) | (disp << 16));
+        currentSection->addData(0x00'00'00'38 | (pc << 12));
     }
     else if (type == JumpType::EQ)
     {
         // jmp mem(pc+4)
         currentSection->addData(0x00'00'00'39 | (gpr1 << 8) | (pc << 12) | (disp << 16) | (gpr2 << 20));
+        // jmp pc+4
+        currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
     }
     else if (type == JumpType::NE)
     {
         // jmp mem(pc+4)
         currentSection->addData(0x00'00'00'3A | (pc << 12) | (disp << 16) | (disp << 16) | (gpr2 << 20));
+        // jmp pc+4
+        currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
     }
     else if (type == JumpType::GT)
     {
         // jmp mem(pc+4)
         currentSection->addData(0x00'00'00'3B | (pc << 12) | (disp << 16) | (disp << 16) | (gpr2 << 20));
+        // jmp pc+4
+        currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
     }
 
     if (op->adrType == AdrType::MDIR_LIT)
@@ -128,7 +133,7 @@ void Assembler::parseJump(uint8_t gpr1, uint8_t gpr2, Operand *op, JumpType type
     else
     {
         std::string symbol = op->symbol;
-        currentSection->relocations.push_back(Relocation{currentSection->data.size(), symbol, 0});
+        currentSection->relocations.push_back(Relocation{static_cast<uint32_t>(currentSection->data.size()), symbol, 0});
         currentSection->addData(0);
     }
 }
@@ -152,8 +157,8 @@ void Assembler::parsePush(uint8_t gpr)
         throw "Nije definisana sekcija!";
     }
     uint8_t sp = 14;
-    uint8_t disp = 4;
-    currentSection->addData(0x00'00'00'81 | (sp << 12) | (disp << 16) | (gpr << 20));
+    uint16_t disp = 0xffc;
+    currentSection->addData(0x00'00'00'81 | (sp << 12) | ((disp & 0xF) << 16) | (gpr << 20) | ((disp & 0xFF0) << 20));
 }
 
 void Assembler::parsePop(uint8_t gpr)
@@ -267,6 +272,12 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
         currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
 
         currentSection->addData(lit);
+
+        // ld 0xf00, %r5 <=> ld $0xf00, %r5, ld [%r5], %r5
+        if (op->adrType == AdrType::MDIR_LIT)
+        {
+            currentSection->addData(0x00'00'00'92 | (gpr << 8) | (gpr << 12));
+        }
     }
     else if (op->adrType == AdrType::SYMB || op->adrType == AdrType::MDIR_SYM)
     {
@@ -276,8 +287,14 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
         currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
 
         std::string symbol = op->symbol;
-        currentSection->relocations.push_back(Relocation{currentSection->data.size(), symbol, 0});
+        currentSection->relocations.push_back(Relocation{static_cast<uint32_t>(currentSection->data.size()), symbol, 0});
         currentSection->addData(0);
+
+        // ld sym, %r5 <=> ld $sym, %r5, ld [%r5], %r5
+        if (op->adrType == AdrType::MDIR_SYM)
+        {
+            currentSection->addData(0x00'00'00'92 | (gpr << 8) | (gpr << 12));
+        }
     }
     else if (op->adrType == AdrType::REG_DIR)
     {
@@ -285,13 +302,7 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
         // ld reg
         currentSection->addData(0x00'00'00'91 | (reg << 8) | (gpr << 12));
     }
-    else if (op->adrType == AdrType::REG_IND)
-    {
-        uint8_t reg = op->reg;
-        // ld (reg)
-        currentSection->addData(0x00'00'00'92 | (reg << 8) | (gpr << 12));
-    }
-    else if (op->adrType == AdrType::REG_LIT)
+    else if (op->adrType == AdrType::REG_IND || op->adrType == AdrType::REG_LIT)
     {
         uint64_t lit = op->literal;
         uint8_t reg = op->reg;
@@ -302,8 +313,7 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
         }
 
         // ld (reg + lit)
-        currentSection->addData(0x00'00'00'92 | (reg << 8) | (lit << 16) | (gpr << 12));
-        currentSection->addData(lit);
+        currentSection->addData(0x00'00'00'92 | (reg << 8) | ((lit & 0xF) << 16) | (gpr << 12) | ((lit & 0xFF0) << 20));
     }
     else
     {
@@ -335,7 +345,7 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
         }
 
         // st mem(pc+4)
-        currentSection->addData(0x00'00'00'80 | (pc << 12) | (disp << 16) | (gpr << 20));
+        currentSection->addData(0x00'00'00'82 | (pc << 12) | (disp << 16) | (gpr << 20));
         // jmp pc+4
         currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
 
@@ -344,21 +354,15 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
     else if (op->adrType == AdrType::MDIR_SYM)
     {
         // st mem(pc+4)
-        currentSection->addData(0x00'00'00'80 | (pc << 12) | (disp << 16) | (gpr << 20));
+        currentSection->addData(0x00'00'00'82 | (pc << 12) | (disp << 16) | (gpr << 20));
         // jmp pc+4
         currentSection->addData(0x00'00'00'30 | (pc << 12) | (disp << 16));
 
         std::string symbol = op->symbol;
-        currentSection->relocations.push_back(Relocation{currentSection->data.size(), symbol, 0});
+        currentSection->relocations.push_back(Relocation{static_cast<uint32_t>(currentSection->data.size()), symbol, 0});
         currentSection->addData(0);
     }
-    else if (op->adrType == AdrType::REG_IND)
-    {
-        uint8_t reg = op->reg;
-        // st mem(reg)
-        currentSection->addData(0x00'00'00'82 | (reg << 12) | (gpr << 20));
-    }
-    else if (op->adrType == AdrType::REG_LIT)
+    else if (op->adrType == AdrType::REG_IND || op->adrType == AdrType::REG_LIT)
     {
         uint64_t lit = op->literal;
         uint8_t reg = op->reg;
@@ -369,8 +373,7 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
         }
 
         // st mem(reg + lit)
-        currentSection->addData(0x00'00'00'82 | (reg << 12) | (lit << 16) | (gpr << 20));
-        currentSection->addData(lit);
+        currentSection->addData(0x00'00'00'80 | (reg << 12) | ((lit & 0xF) << 16) | (gpr << 20) | ((lit & 0xFF0) << 20));
     }
     else
     {
@@ -384,7 +387,7 @@ void Assembler::parseCsrrd(uint8_t csr, uint8_t gpr)
     {
         throw "Nije definisana sekcija!";
     }
-    currentSection->addData(0x00'00'00'80 | (csr << 8) | (gpr << 12));
+    currentSection->addData(0x00'00'00'90 | (csr << 8) | (gpr << 12));
 }
 
 void Assembler::parseCsrwr(uint8_t gpr, uint8_t csr)
@@ -393,5 +396,5 @@ void Assembler::parseCsrwr(uint8_t gpr, uint8_t csr)
     {
         throw "Nije definisana sekcija!";
     }
-    currentSection->addData(0x00'00'00'84 | (gpr << 8) | (csr << 12));
+    currentSection->addData(0x00'00'00'94 | (gpr << 8) | (csr << 12));
 }

@@ -21,9 +21,9 @@ struct Relocation
 {
     uint32_t offset;
     std::string symbol;
-    int32_t addend;
+    uint32_t addend;
 
-    Relocation(uint32_t offset, std::string symbol, int32_t addend) : offset(offset), symbol(symbol), addend(addend) {}
+    Relocation(uint32_t offset, std::string symbol, uint32_t addend) : offset(offset), symbol(symbol), addend(addend) {}
 };
 
 struct Section
