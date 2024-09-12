@@ -140,7 +140,7 @@ void Assembler::writeToFile(std::ofstream &output_file)
 
     for (const auto &symbol : symbolTable)
     {
-        if (symbol.second.isGlobal)
+        if (symbol.second.isGlobal ) 
         {
             // symbol name and name size
             uint32_t nameSize = symbol.first.size();

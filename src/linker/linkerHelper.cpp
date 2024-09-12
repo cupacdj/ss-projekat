@@ -66,19 +66,56 @@ void Linker::printTables(std::map<std::string, Symbol> &symbolTable, std::map<st
 
 void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable)
 {
-
-    for (const auto &[name, section] : sectionTable)
-    {
-        globalSectionTable[name] = section;
-    }
-
     for (const auto &[name, symbol] : symbolTable)
     {
-        globalSymbolTable[name] = symbol;
+        if (globalSymbolTable.find(name) == globalSymbolTable.end())
+        {
+            globalSymbolTable[name] = symbol;
+            globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+        }
+        else
+        {
+            if (globalSymbolTable[name].isDefined && symbol.isDefined)
+            {
+                std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
+                exit(-1);
+            }
+            else if (!globalSymbolTable[name].isDefined)
+            {
+                globalSymbolTable[name] = symbol;
+                globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+            }
+        }
     }
 
-    std::cout << "Merged tables: \n" << std::endl;
-    Linker::printTables(globalSymbolTable, globalSectionTable);
+    // ako je ostao neki simbol u globalnoj tabeli koji nije definisan
+    for (const auto &[name, symbol] : symbolTable)
+    {
+        if (!globalSymbolTable[name].isDefined)
+        {
+            std::cerr << "Error: Simbol " << name << " nije definisan." << std::endl;
+            exit(-1);
+        }
+    }
+
+    // for relocations in sectionTable
+    for (const auto &[name, section] : sectionTable)
+    {
+        for (const auto &rel : section.relocations)
+        {
+            Relocation newRel = rel;
+            newRel.offset += globalSectionTable[section.name].data.size();
+            
+            if(rel.symbol == name){
+                newRel.addend += globalSectionTable[section.name].data.size();
+            }
+            globalSectionTable[section.name].relocations.push_back(newRel);
+        }
+        globalSectionTable[section.name].data.insert(globalSectionTable[section.name].data.end(), section.data.begin(), section.data.end());
+    }
+
+    
+
 }
 
 void Linker::readFromFile(std::ifstream &input_file)
@@ -133,6 +170,7 @@ void Linker::readFromFile(std::ifstream &input_file)
         input_file.read(reinterpret_cast<char *>(section.data.data()), dataSize);
 
         localSectionTable[section.name] = section;
+        ;
     }
 
     // number of symbols
@@ -163,9 +201,24 @@ void Linker::readFromFile(std::ifstream &input_file)
         localSymbolTable[symbol.name] = symbol;
     }
 
-    std::cout << "Local tables: \n" << std::endl;
+    std::cout << "Local tables: \n"
+              << std::endl;
     Linker::printTables(localSymbolTable, localSectionTable);
 
-    //Linker::mergeTables(localSymbolTable, localSectionTable);
+    // Linker::mergeTables(localSymbolTable, localSectionTable);
 }
 
+void Linker::readFiles(std::vector<std::string> files)
+{
+    for (auto file : files)
+    {
+        std::ifstream input_file(file, std::ios::binary);
+        if (!input_file.is_open())
+        {
+            std::cerr << "Error opening file: " << file << std::endl;
+            exit(-1);
+        }
+
+        Linker::readFromFile(input_file);
+    }
+}

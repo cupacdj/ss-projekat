@@ -14,10 +14,14 @@ public:
     Linker(Linker const &) = delete;
     void operator=(Linker const &) = delete;
 
+    void readFiles(std::vector<std::string> files);
     void readFromFile(std::ifstream &input_file);
+    void writeToFile(std::string output);
+
+    void placeSections(std::map<std::string, uint32_t> &sectionAddresses, std::vector<std::string> &files);
     void mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
     void printTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
-
+    
 private:
     Linker() {}
     ~Linker() {}

@@ -1,35 +1,87 @@
 #include "linker.hpp"
 #include <iostream>
 #include <fstream>
-#include <cstring>
+#include <string>
 
 int main(int argc, char *argv[])
 {
-    if (std::strcmp(argv[1], "-hex") != 0)
-    {
-        std::cout << "Invalid argument!" << std::endl;
-        exit(-1);
-    }
-    
-    // if (argc >= 3)
+    bool hex = false;
+    bool place = false;
+    bool out = false;
+    std::string output;
+    std::string argument;
+    Linker &linker = Linker::getInstance();
+    std::vector<std::string> files;
+    std::map<std::string, uint32_t> sectionAddresses;
+
+    // if (argc >= 2)
     // {
     //     std::cout << "Potrebno je 3 ili vise argumenta a data su: " << argc - 1 << "!" << std::endl;
     //     return -1;
     // }
 
-    Linker &linker = Linker::getInstance();
-
-    for (int i = 2; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        std::ifstream input_file(argv[i], std::ios::binary);
-        if (!input_file.is_open())
+        argument = std::string(argv[i]);
+        if (argument == "-hex")
         {
-            std::cout << "Neuspesno otvaranje fajla " << argv[3] << std::endl;
-            return -1;
+            hex = true;
+            continue;
         }
 
-        linker.readFromFile(input_file);
+        if (argument == "-o")
+        {
+            output = std::string(argv[i + 1]);
+            out = true;
+            i++;
+            continue;
+        }
+        
+        if (argument.find("-place=") == 0)
+        {
+            std::string place = argument.substr(7);
+            size_t monkey = place.find('@');
+            if (monkey != std::string::npos)
+            {
+                std::string section = place.substr(0, monkey);
+                std::string addressStr = place.substr(monkey + 1);
+                uint32_t address = std::stoul(addressStr, nullptr, 16); 
+                
+                if (sectionAddresses.find(section) != sectionAddresses.end())
+                {
+                    std::cerr << "Greška: Sekcija " << section << " je navedena više puta." << std::endl;
+                    exit(-1);
+                }
+
+                sectionAddresses[section] = address;
+            }
+            else
+            {
+                std::cout << "Greška u -place argumentu: " << argument << std::endl;
+                exit(-1);
+            }
+            continue;
+        }
+
+        files.push_back(argument);
     }
+
+    if (!hex)
+    {
+        std::cout << "Nije pronadjena -hex" << std::endl;
+        exit(-1);
+    }
+    // if (!out)
+    // {
+    //     std::cout << "Nije pronadjen -o" << std::endl;
+    //     exit(-1);
+    // }
+
+    linker.readFiles(files);
+    
+    //linker.placeSections(sectionAddresses, files);
+    
+    //linker.writeToFile(output);
 
     return 0;
 }
