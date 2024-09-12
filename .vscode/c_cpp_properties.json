@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/assembler",
+                "${workspaceFolder}/src/linker",
                 "${workspaceFolder}/inc",  
                 "${workspaceFolder}/misc",
                 "${workspaceFolder}/tests"

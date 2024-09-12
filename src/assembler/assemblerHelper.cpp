@@ -91,8 +91,10 @@ void Assembler::writeToFile(std::ofstream &output_file)
         const Section &section = sects.second;
 
         // section name and name size
-        output_file.write(reinterpret_cast<const char *>(section.name.size()), sizeof(section.name.size()));
+        uint32_t nameSize = section.name.size();
+        output_file.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
         output_file.write(section.name.c_str(), section.name.size());
+
 
         // number of relocations
         uint32_t numRelocations = section.relocations.size();
@@ -105,7 +107,8 @@ void Assembler::writeToFile(std::ofstream &output_file)
             output_file.write(reinterpret_cast<const char *>(&rel.offset), sizeof(rel.offset));
 
             // symbol name and name size
-            output_file.write(reinterpret_cast<const char *>(rel.symbol.size()), sizeof(rel.symbol.size()));
+            uint32_t symbolSize = rel.symbol.size();
+            output_file.write(reinterpret_cast<const char *>(&symbolSize), sizeof(symbolSize));
             output_file.write(rel.symbol.c_str(), rel.symbol.size());
 
             // addend
@@ -113,7 +116,8 @@ void Assembler::writeToFile(std::ofstream &output_file)
         }
 
         // section data size
-        output_file.write(reinterpret_cast<const char *>(section.data.size()), sizeof(section.data.size()));
+        uint32_t dataSize = section.data.size();
+        output_file.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
 
         // section data
         if (!section.data.empty())
@@ -139,18 +143,21 @@ void Assembler::writeToFile(std::ofstream &output_file)
         if (symbol.second.isGlobal)
         {
             // symbol name and name size
-            output_file.write(reinterpret_cast<const char *>(symbol.first.size()), sizeof(symbol.first.size()));
+            uint32_t nameSize = symbol.first.size();
+            output_file.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
             output_file.write(symbol.first.c_str(), symbol.first.size());
 
             // symbol address
             output_file.write(reinterpret_cast<const char *>(&symbol.second.address), sizeof(symbol.second.address));
 
             // section name and name size
-            output_file.write(reinterpret_cast<const char *>(symbol.second.section.size()), sizeof(symbol.second.section.size()));
+            uint32_t sectionSize = symbol.second.section.size();
+            output_file.write(reinterpret_cast<const char *>(&sectionSize), sizeof(sectionSize));
             output_file.write(symbol.second.section.c_str(), symbol.second.section.size());
 
             // is defined
-            output_file.write(reinterpret_cast<const char *>(symbol.second.isDefined), sizeof(symbol.second.isDefined));
+            output_file.write(reinterpret_cast<const char *>(&symbol.second.isDefined), sizeof(symbol.second.isDefined));
         }
     }
 }
+

@@ -5,24 +5,27 @@
 
 extern int yyparse();
 extern FILE *yyin;
-std::ofstream output_file;
-
-using namespace std;
 
 int main(int argc, char *argv[])
 {
     if (argc != 4)
     {
-        cout << "Potrebno je 3 argumenta a data su: " << argc - 1 << "!" << endl;
+        std::cout << "Potrebno je 3 argumenta a data su: " << argc - 1 << "!" << std::endl;
         return -1;
     }
 
-    output_file = ofstream(argv[2]);
+    std::ofstream output_file(argv[2], std::ios::binary);
+
+    if (!output_file.is_open())
+    {
+        std::cout << "Neuspesno otvaranje fajla " << argv[2] << std::endl;
+        return -1;
+    }
 
     FILE *input_file = fopen(argv[3], "r");
     if (!input_file)
     {
-        cout << "Neuspesno otvaranje fajla " << argv[3] << endl;
+        std::cout << "Neuspesno otvaranje fajla " << argv[3] << std::endl;
         return -1;
     }
 
@@ -33,7 +36,7 @@ int main(int argc, char *argv[])
     }
     catch (const char *msg)
     {
-        cout << msg << endl;
+        std::cout << msg << std::endl;
         fclose(input_file);
         output_file.close();
         return -1;
@@ -43,9 +46,6 @@ int main(int argc, char *argv[])
 
     Assembler &asmblr = Assembler::getInstance();
 
-    asmblr.printTables();
-
-    // fix relocations of local symbols
     asmblr.fixRelocations();
 
     asmblr.writeToFile(output_file);
@@ -53,5 +53,6 @@ int main(int argc, char *argv[])
     asmblr.printTables();
 
     output_file.close();
+
     return 0;
 }

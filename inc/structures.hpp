@@ -8,6 +8,7 @@
 
 struct Symbol
 {
+    std::string name;
     uint32_t address;
     bool isGlobal;
     bool isDefined;
@@ -23,6 +24,7 @@ struct Relocation
     std::string symbol;
     uint32_t addend;
 
+    Relocation() : offset(0), symbol(""), addend(0) {}
     Relocation(uint32_t offset, std::string symbol, uint32_t addend) : offset(offset), symbol(symbol), addend(addend) {}
 };
 

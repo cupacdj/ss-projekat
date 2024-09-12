@@ -14,7 +14,9 @@ public:
     Linker(Linker const &) = delete;
     void operator=(Linker const &) = delete;
 
-    void readFromFile(std::ofstream &output_file);
+    void readFromFile(std::ifstream &input_file);
+    void mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
+    void printTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
 
 private:
     Linker() {}
