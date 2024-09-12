@@ -1,10 +1,10 @@
 SOURCE_ASSEMBLER = \
 misc/lex.yy.cpp \
 misc/parser.tab.cpp \
-src/assemblerDirectives.cpp \
-src/assemblerInstructions.cpp \
-src/assemblerHelper.cpp \
-src/assemblerMain.cpp
+src/assembler/assemblerDirectives.cpp \
+src/assembler/assemblerInstructions.cpp \
+src/assembler/assemblerHelper.cpp \
+src/assembler/assemblerMain.cpp
 
 GEN_INCLUDE_ASSEMBLER = \
 misc/parser.tab.hpp

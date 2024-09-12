@@ -47,10 +47,10 @@ public:
 
 private:
     Assembler() {}
+    ~Assembler() {}
 
     std::map<std::string, Symbol> symbolTable;
     std::map<std::string, Section> sectionTable;
-    std::map<std::string, Relocation> relocationTable;
     Section* currentSection;
 
 
