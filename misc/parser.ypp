@@ -112,7 +112,7 @@ Operand:
   | SYMBOL                                     { operand->adrType = AdrType::MDIR_SYM; operand->symbol = $1; }
   | DOLLAR NUMBER                              { operand->adrType = AdrType::IMMED; operand->literal = $2; }
   | DOLLAR SYMBOL                              { operand->adrType = AdrType::SYMB; operand->symbol = $2; }
-  | LEFT_BRACKET GPR RIGHT_BRACKET             { operand->adrType = AdrType::REG_IND; operand->reg = $2; }
+  | LEFT_BRACKET GPR RIGHT_BRACKET             { operand->adrType = AdrType::REG_IND; operand->reg = $2; operand->literal = 0; }
   | LEFT_BRACKET GPR PLUS NUMBER RIGHT_BRACKET { operand->adrType = AdrType::REG_LIT; operand->reg = $2; operand->literal = $4; }
   
 

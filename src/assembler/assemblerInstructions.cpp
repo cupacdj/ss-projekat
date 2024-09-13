@@ -94,7 +94,7 @@ void Assembler::parseJump(uint8_t gpr1, uint8_t gpr2, Operand *op, JumpType type
 
     if (type == JumpType::UNCOND)
     {
-        // jmp mem(pc+4)
+        // jmp mem(pc)
         currentSection->addData(0x00'00'00'38 | (pc << 12));
     }
     else if (type == JumpType::EQ)

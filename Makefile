@@ -13,10 +13,6 @@ SOURCE_LINKER = \
 src/linker/linkerHelper.cpp \
 src/linker/linkerMain.cpp
 
-GEN_INCLUDE_LINKER = \
-inc/linker.hpp
-
-.PHONY: all clean
 
 all: assembler linker
 
@@ -27,10 +23,10 @@ misc/lex.yy.cpp: misc/lexer.l misc/parser.tab.hpp
 	flex -o misc/lex.yy.cpp misc/lexer.l
 
 assembler: $(SOURCE_ASSEMBLER) | $(GEN_INCLUDE_ASSEMBLER)
-	g++ -o assembler $(^) -Iinc -Imisc
+	g++ -o assembler -g -Og $(^) -Iinc -Imisc
 
-linker: $(SOURCE_LINKER) $(GEN_INCLUDE_LINKER)
-	g++ -o linker $(^) -Iinc
+linker: $(SOURCE_LINKER)
+	g++ -o linker -g -Og $(^) -Iinc
 
 clean:
 	rm -f misc/lex.yy.cpp 
@@ -38,3 +34,6 @@ clean:
 	rm -f misc/parser.tab.hpp 
 	rm -f assembler
 	rm -f linker
+
+
+.PHONY: all clean

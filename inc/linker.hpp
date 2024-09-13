@@ -16,10 +16,12 @@ public:
 
     void readFiles(std::vector<std::string> files);
     void readFromFile(std::ifstream &input_file);
-    void writeToFile(std::string output);
+    void writeToFile(std::ofstream &output_file, std::map<std::string, uint32_t> &sectionAddresses);
 
-    void placeSections(std::map<std::string, uint32_t> &sectionAddresses, std::vector<std::string> &files);
     void mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
+    void placeSections(std::map<std::string, uint32_t> &sectionAddresses, std::vector<std::string> &files);
+    void relocation(std::map<std::string, uint32_t> &sectionAddresses);
+    
     void printTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
     
 private:

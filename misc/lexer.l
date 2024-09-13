@@ -69,15 +69,15 @@
 ".skip"                         { return DIR_SKIP; }
 ".end"                          { return YYEOF; }
 
--?[1-9][0-9]*                   { yylval.number = atoi(yytext); return NUMBER; }
-0[0-7]*                         { yylval.number = strtol(yytext, NULL, 8); return NUMBER; }
-0x[0-9a-fA-F]+                  { yylval.number = strtol(yytext, NULL, 16); return NUMBER; }
+-?[1-9][0-9]*                   { yylval.number = strtoull(yytext, NULL, 10); return NUMBER; }
+0[0-7]*                         { yylval.number = strtoull(yytext, NULL, 8); return NUMBER; }
+0x[0-9a-fA-F]+                  { yylval.number = strtoull(yytext, NULL, 16); return NUMBER; }
 
 
 
-%r[0-9]+                        { yylval.number = atoi(yytext + 2); return GPR; }
-sp                              { yylval.number = 14; return GPR; }
-pc                              { yylval.number = 15; return GPR; }
+%r([0-9]|1[0-5])                { yylval.number = atoi(yytext + 2); return GPR; }
+%sp                             { yylval.number = 14; return GPR; }
+%pc                             { yylval.number = 15; return GPR; }
 
 %status                         { yylval.number = 0; return CSR; }
 %handler                        { yylval.number = 1; return CSR; }

@@ -2,6 +2,7 @@
 *.hex
 *.exe
 *.S
+*.sh
 parser.tab.cpp
 parser.tab.hpp
 lex.yy.cpp

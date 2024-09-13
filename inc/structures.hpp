@@ -80,9 +80,9 @@ enum AdrType
 
 struct Operand
 {
-    int literal;
+    uint32_t literal;
     std::string symbol;
-    int reg;
+    uint8_t reg;
     AdrType adrType;
 };
 

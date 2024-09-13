@@ -70,7 +70,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
     {
         if (globalSymbolTable.find(name) == globalSymbolTable.end())
         {
-            globalSymbolTable[name] = symbol;
+            globalSymbolTable.emplace(name, symbol);
             globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
         }
         else
@@ -80,7 +80,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
                 std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
                 exit(-1);
             }
-            else if (!globalSymbolTable[name].isDefined)
+            else if (symbol.isDefined)
             {
                 globalSymbolTable[name] = symbol;
                 globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
@@ -88,39 +88,90 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
         }
     }
 
-    // ako je ostao neki simbol u globalnoj tabeli koji nije definisan
-    for (const auto &[name, symbol] : symbolTable)
-    {
-        if (!globalSymbolTable[name].isDefined)
-        {
-            std::cerr << "Error: Simbol " << name << " nije definisan." << std::endl;
-            exit(-1);
-        }
-    }
-
-    // for relocations in sectionTable
     for (const auto &[name, section] : sectionTable)
     {
         for (const auto &rel : section.relocations)
         {
             Relocation newRel = rel;
             newRel.offset += globalSectionTable[section.name].data.size();
-            
-            if(rel.symbol == name){
-                newRel.addend += globalSectionTable[section.name].data.size();
+
+            if (globalSectionTable.find(rel.symbol) != globalSectionTable.end())
+            {
+                newRel.addend += globalSectionTable[rel.symbol].data.size();
             }
             globalSectionTable[section.name].relocations.push_back(newRel);
         }
         globalSectionTable[section.name].data.insert(globalSectionTable[section.name].data.end(), section.data.begin(), section.data.end());
     }
+}
 
-    
+void Linker::placeSections(std::map<std::string, uint32_t> &sectionAddresses, std::vector<std::string> &files)
+{
 
+    // if any symbol is not defined, throw error
+    for (auto &symbol : globalSymbolTable)
+    {
+        if (!symbol.second.isDefined)
+        {
+            std::cerr << "Error: Simbol " << symbol.first << " nije definisan." << std::endl;
+            exit(-1);
+        }
+    }
+
+    size_t offset = 0;
+    for (const auto &[name, address] : sectionAddresses)
+    {
+        if (globalSectionTable.find(name) == globalSectionTable.end())
+        {
+            std::cerr << "Error: Sekcija " << name << " nije definisana." << std::endl;
+            exit(-1);
+        }
+
+        offset = std::max(offset, address + globalSectionTable[name].data.size());
+    }
+
+    for (const auto &[name, section] : globalSectionTable)
+    {
+        if (sectionAddresses.find(name) == sectionAddresses.end())
+        {
+            sectionAddresses.emplace(name, offset);
+            offset += section.data.size();
+        }
+    }
+}
+
+void Linker::relocation(std::map<std::string, uint32_t> &sectionAddresses)
+{
+    for (auto &section : globalSectionTable)
+    {
+        for (auto &rel : section.second.relocations)
+        { 
+            uint32_t symbolAddress = 0;
+            if (globalSectionTable.find(rel.symbol) != globalSectionTable.end())
+            {
+                symbolAddress = sectionAddresses[rel.symbol];
+            }
+            else
+            {
+                if (globalSymbolTable.find(rel.symbol) == globalSymbolTable.end())
+                {
+                    std::cerr << "Error: Simbol " << rel.symbol << " nije definisan." << std::endl;
+                    exit(-1);
+                }
+                symbolAddress = globalSymbolTable[rel.symbol].address + sectionAddresses[globalSymbolTable[rel.symbol].section];
+            }
+
+            uint32_t value = symbolAddress + rel.addend;
+            section.second.data[rel.offset] = value & 0xFF;
+            section.second.data[rel.offset + 1] = (value >> 8) & 0xFF;
+            section.second.data[rel.offset + 2] = (value >> 16) & 0xFF;
+            section.second.data[rel.offset + 3] = (value >> 24) & 0xFF;
+        }
+    }
 }
 
 void Linker::readFromFile(std::ifstream &input_file)
 {
-    std::cout << "Reading from file..." << std::endl;
 
     std::map<std::string, Section> localSectionTable;
     std::map<std::string, Symbol> localSymbolTable;
@@ -170,7 +221,6 @@ void Linker::readFromFile(std::ifstream &input_file)
         input_file.read(reinterpret_cast<char *>(section.data.data()), dataSize);
 
         localSectionTable[section.name] = section;
-        ;
     }
 
     // number of symbols
@@ -201,11 +251,7 @@ void Linker::readFromFile(std::ifstream &input_file)
         localSymbolTable[symbol.name] = symbol;
     }
 
-    std::cout << "Local tables: \n"
-              << std::endl;
-    Linker::printTables(localSymbolTable, localSectionTable);
-
-    // Linker::mergeTables(localSymbolTable, localSectionTable);
+    Linker::mergeTables(localSymbolTable, localSectionTable);
 }
 
 void Linker::readFiles(std::vector<std::string> files)
@@ -220,5 +266,23 @@ void Linker::readFiles(std::vector<std::string> files)
         }
 
         Linker::readFromFile(input_file);
+    }
+}
+
+void Linker::writeToFile(std::ofstream& output_file, std::map<std::string, uint32_t> &sectionAddresses)
+{
+    
+    for (const auto&[name, section] : globalSectionTable)
+    {
+        size_t startAddr = sectionAddresses[name];
+        for (int i = 0; i < section.data.size();)
+        {
+            output_file << std::hex << std::setw(8) << std::setfill('0') << std::right << startAddr + i << ": ";
+            for (int j = 0; j < 8 && i < section.data.size(); j++, i++)
+            {
+                output_file << std::hex << std::setw(2) << std::setfill('0')<< std::right << static_cast<int>(section.data[i]) << " ";
+            }
+            output_file << std::endl;
+        }
     }
 }

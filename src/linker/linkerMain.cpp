@@ -13,12 +13,13 @@ int main(int argc, char *argv[])
     Linker &linker = Linker::getInstance();
     std::vector<std::string> files;
     std::map<std::string, uint32_t> sectionAddresses;
+    
 
-    // if (argc >= 2)
-    // {
-    //     std::cout << "Potrebno je 3 ili vise argumenta a data su: " << argc - 1 << "!" << std::endl;
-    //     return -1;
-    // }
+    if (argc < 3)
+    {
+        std::cout << "Potrebno je 3 ili vise argumenta a data su: " << argc - 1 << "!" << std::endl;
+        return -1;
+    }
 
     for (int i = 1; i < argc; i++)
     {
@@ -71,17 +72,21 @@ int main(int argc, char *argv[])
         std::cout << "Nije pronadjena -hex" << std::endl;
         exit(-1);
     }
-    // if (!out)
-    // {
-    //     std::cout << "Nije pronadjen -o" << std::endl;
-    //     exit(-1);
-    // }
+
+    if (!out)
+    {
+        std::cout << "Nije pronadjen -o" << std::endl;
+        exit(-1);
+    }
 
     linker.readFiles(files);
     
-    //linker.placeSections(sectionAddresses, files);
+    linker.placeSections(sectionAddresses, files);
+
+    linker.relocation(sectionAddresses);
     
-    //linker.writeToFile(output);
+    std::ofstream outfile(output, std::ios::binary);
+    linker.writeToFile(outfile, sectionAddresses);
 
     return 0;
 }
