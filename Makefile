@@ -13,8 +13,12 @@ SOURCE_LINKER = \
 src/linker/linkerHelper.cpp \
 src/linker/linkerMain.cpp
 
+SOURCE_EMULATOR = \
+src/emulator/emulatorHelper.cpp \
+src/emulator/emulatorInstructions.cpp \
+src/emulator/emulatorMain.cpp
 
-all: assembler linker
+all: assembler linker emulator
 
 misc/parser.tab.cpp misc/parser.tab.hpp: misc/parser.ypp
 	bison -d -o misc/parser.tab.cpp misc/parser.ypp
@@ -28,12 +32,17 @@ assembler: $(SOURCE_ASSEMBLER) | $(GEN_INCLUDE_ASSEMBLER)
 linker: $(SOURCE_LINKER)
 	g++ -o linker -g -Og $(^) -Iinc
 
+emulator: $(SOURCE_EMULATOR)
+	g++ -o emulator -g -Og $(^) -Iinc
+
+
 clean:
 	rm -f misc/lex.yy.cpp 
 	rm -f misc/parser.tab.cpp 
 	rm -f misc/parser.tab.hpp 
 	rm -f assembler
 	rm -f linker
+	rm -f emulator
 
 
 .PHONY: all clean

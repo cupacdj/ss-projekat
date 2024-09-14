@@ -43,7 +43,21 @@ struct Section
     }
 };
 
-enum class JumpType
+enum Instructions
+{
+    HALT,
+    INT,
+    CALL,
+    JUMP,
+    XCHG,
+    ARIT,
+    LOGI,
+    SH,
+    ST,
+    LD
+};
+
+enum JumpType
 {
     UNCOND,
     EQ,
@@ -51,7 +65,7 @@ enum class JumpType
     GT
 };
 
-enum class ArithType
+enum ArithType
 {
     ADD,
     SUB,
@@ -59,12 +73,18 @@ enum class ArithType
     DIV
 };
 
-enum class LogiType
+enum LogiType
 {
     AND,
     OR,
     XOR,
     NOT
+};
+
+enum ShiftType
+{
+    SHL,
+    SHR
 };
 
 enum AdrType

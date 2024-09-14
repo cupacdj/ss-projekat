@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/src/assembler",
                 "${workspaceFolder}/src/linker",
+                "${workspaceFolder}/src/emulator",
                 "${workspaceFolder}/inc",  
                 "${workspaceFolder}/misc",
                 "${workspaceFolder}/tests"

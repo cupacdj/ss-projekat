@@ -69,6 +69,9 @@
         "fstream": "cpp",
         "iostream": "cpp",
         "deque": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "span": "cpp",
+        "__tree": "cpp",
+        "map": "cpp"
     }
 }
