@@ -59,8 +59,8 @@ void Emulator::executeJump(std::vector<uint8_t> &instruction)
     switch (instr.mode)
     {
     case 0x00:
-        // pc<=gpr[A]+gpr[B]+D;
-        pc = gpr[instr.A] + gpr[instr.B] + instr.D;
+        // pc<=gpr[A]+D;
+        pc = gpr[instr.A] + instr.D;
         break;
     case 0x01:
         if (gpr[instr.B] == gpr[instr.B])
@@ -218,7 +218,7 @@ void Emulator::executeSt(std::vector<uint8_t> &instruction)
             memory[gpr[instr.A] + gpr[instr.B] + instr.D + i] = (gpr[instr.C] >> (8 * i)) & 0xFF;
         }
         break;
-    case 0x01:
+    case 0x02:
     {
         uint32_t address = 0;
         for (int i = 0; i < 4; i++)
@@ -232,7 +232,7 @@ void Emulator::executeSt(std::vector<uint8_t> &instruction)
         }
         break;
     }
-    case 0x02:
+    case 0x01:
         gpr[instr.A] = gpr[instr.A] + instr.D;
         for (int i = 0; i < 4; i++)
         {
