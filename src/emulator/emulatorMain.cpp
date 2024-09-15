@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
         return -1;
     }
 
-    emulator.readFromFile(input_file);
+    emulator.loadFile(input_file);
 
     emulator.execute();
 

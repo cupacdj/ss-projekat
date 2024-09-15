@@ -9,9 +9,9 @@
 struct InstrEmu
 {
     uint8_t mode;
-    uint8_t gprA;
-    uint8_t gprB;
-    uint8_t gprC;
+    uint8_t A;
+    uint8_t B;
+    uint8_t C;
     int16_t D;
 };
 
@@ -26,7 +26,7 @@ public:
     Emulator(Emulator const &) = delete;
     void operator=(Emulator const &) = delete;
 
-    void readFromFile(std::ifstream &input_file);
+    void loadFile(std::ifstream &input_file);
     void printMemory();
 
     void execute();

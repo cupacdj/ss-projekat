@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     asmblr.writeToFile(output_file);
 
-    asmblr.printTables();
+    //asmblr.printTables();
 
     output_file.close();
 

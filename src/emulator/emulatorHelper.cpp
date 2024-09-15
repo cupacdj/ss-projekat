@@ -2,7 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
-void Emulator::readFromFile(std::ifstream &input_file)
+void Emulator::loadFile(std::ifstream &input_file)
 {
     std::string line;
     while (std::getline(input_file, line))
@@ -53,6 +53,7 @@ void Emulator::execute()
 
     while (true)
     {
+        std::cout << "PC: " << std::hex << pc << std::endl;
         getInstruction();
     }
 }
@@ -80,37 +81,49 @@ void Emulator::getInstruction()
     pc += 4;
     uint8_t opcode = instr[0];
     opcode = (opcode >> 4) & 0x0F;
+    std::cout << "Opcode: " << std::hex << (int)opcode << std::endl;
     switch (opcode)
     {
     case Instructions::HALT:
+        std::cout << "HALT" << std::endl;
         printEmulator();
         exit(0);
         break;
     case Instructions::INT:
+        std::cout << "INT" << std::endl;
         executeInt();
         break;
     case Instructions::CALL:
+        std::cout << "CALL" << std::endl;
         executeCall(instr);
         break;
     case Instructions::JUMP:
+        std::cout << "JUMP" << std::endl;
         executeJump(instr);
         break;
     case Instructions::XCHG:
+        std::cout << "XCHG" << std::endl;
         executeXchg(instr);
         break;
     case Instructions::ARIT:
+        std::cout << "ARIT" << std::endl;
         executeArit(instr);
         break;
     case Instructions::LOGI:
+        std::cout << "LOGI" << std::endl;
         executeLogi(instr);
+
         break;
     case Instructions::SH:
+        std::cout << "SH" << std::endl;
         executeSh(instr);
         break;
     case Instructions::ST:
+        std::cout << "ST" << std::endl;
         executeSt(instr);
         break;
     case Instructions::LD:
+        std::cout << "LD" << std::endl;
         executeLd(instr);
         break;
     default:
@@ -123,16 +136,17 @@ InstrEmu Emulator::extractRegisters(std::vector<uint8_t> &instruction)
 {
     InstrEmu instr;
     instr.mode = instruction[0] & 0x0F;
-    instr.gprA = (instruction[1] >> 4) & 0x0F;
-    instr.gprB = instruction[1] & 0x0F;
-    instr.gprC = (instruction[2] >> 4) & 0x0F;
+    instr.A = (instruction[1] >> 4) & 0x0F;
+    instr.B = instruction[1] & 0x0F;
+    instr.C = (instruction[2] >> 4) & 0x0F;
     uint8_t D1 = instruction[2] & 0x0F;
-    int16_t D = (D1 << 8) | instruction[3];
+    //int16_t D = (D1 << 8) | instruction[3];
+    int16_t D = (instruction[3] << 4) | D1;
     if (D & 0x800)
     {
         D = D | 0xF000;
     }
+
     instr.D = D;
     return instr;
 }
-
