@@ -13,6 +13,7 @@ struct Symbol
     bool isGlobal;
     bool isDefined;
     std::string section;
+    bool isWeak;
 
     Symbol() : address(0), isGlobal(false), isDefined(false), section("") {}
     Symbol(uint32_t address, bool isGlobal, bool isDefined, std::string section) : address(address), isGlobal(isGlobal), isDefined(isDefined), section(section) {}

@@ -61,3 +61,11 @@ void Assembler::parseSkip(uint8_t num)
         currentSection->data.push_back(0);
     }
 }
+
+void Assembler::parseWeak(std::vector<std::string> symbol)
+{
+    for (const std::string &sym : symbol)
+    {
+        symbolTable[sym].isWeak = true;
+    }
+}

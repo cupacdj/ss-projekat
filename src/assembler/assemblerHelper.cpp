@@ -23,6 +23,14 @@ void Assembler::fixRelocations()
         }
     }
 
+    for (auto &[name, symbol] : symbolTable)
+    {
+        if (symbol.isWeak && !symbol.isDefined)
+        {
+            std::cout << "Error: Simbol: (" << name << ") je weak ali nije definisan!" << std::endl;
+            exit(-1);
+        }
+    }
     
 }
 
@@ -205,7 +213,7 @@ void Assembler::writeToFile(std::ofstream &output_file)
 
     for (const auto &symbol : symbolTable)
     {
-        if (symbol.second.isGlobal ) 
+        if (symbol.second.isGlobal || symbol.second.isWeak) 
         {
             // symbol name and name size
             uint32_t nameSize = symbol.first.size();
@@ -222,6 +230,9 @@ void Assembler::writeToFile(std::ofstream &output_file)
 
             // is defined
             output_file.write(reinterpret_cast<const char *>(&symbol.second.isDefined), sizeof(symbol.second.isDefined));
+
+            // is weak
+            output_file.write(reinterpret_cast<const char *>(&symbol.second.isWeak), sizeof(symbol.second.isWeak));
         }
     }
 }

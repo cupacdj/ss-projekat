@@ -68,6 +68,8 @@
 ".word"                         { return DIR_WORD; }
 ".skip"                         { return DIR_SKIP; }
 ".end"                          { return EOF; }
+".weak"                         { return DIR_WEAK; }
+
 
 -?[1-9][0-9]*                   { yylval.number = strtoull(yytext, NULL, 10); return NUMBER; }
 0[0-7]*                         { yylval.number = strtoull(yytext, NULL, 8); return NUMBER; }

@@ -24,6 +24,7 @@ public:
     
     void printTables(std::map<std::string, Symbol> &symbolTable, std::map<std::string, Section> &sectionTable);
     void makeTextFile(std::string file);
+    
 private:
     Linker() {}
     ~Linker() {}

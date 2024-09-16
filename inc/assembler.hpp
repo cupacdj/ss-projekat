@@ -39,12 +39,13 @@ public:
     void parseSection(std::string section);
     void parseWord(std::vector <std::string> symbols);
     void parseSkip(uint8_t num);
+    void parseWeak(std::vector<std::string> symbol);
     
     // helper functions
     void printTables();
     void writeToFile(std::ofstream &output_file);
     void fixRelocations();
-     void makeTextFile(std::string file);
+    void makeTextFile(std::string file);
 
 private:
     Assembler() {}
