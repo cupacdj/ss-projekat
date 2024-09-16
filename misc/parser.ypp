@@ -12,6 +12,7 @@
     Assembler &assembler = Assembler::getInstance();
     Operand *operand = new Operand();
     std::vector <std::string> symbolList;
+    std::vector <std::uint8_t> registers;
 
 %}
 
@@ -25,6 +26,7 @@
 %token <strVal> LABEL
 
 %token PLUS DOLLAR LEFT_BRACKET RIGHT_BRACKET COMMA
+%token LEFT_BRACE RIGHT_BRACE   
        
 %token ENDL COMMENT
 
@@ -77,6 +79,7 @@ Instruction:
   | INS_BNE GPR COMMA GPR COMMA IndirOperand   { assembler.parseJump($2, $4, operand, JumpType::NE); }
   | INS_BGT GPR COMMA GPR COMMA IndirOperand   { assembler.parseJump($2, $4, operand, JumpType::GT); }
   | INS_PUSH GPR                               { assembler.parsePush($2); }
+  | INS_PUSH LEFT_BRACE Registers RIGHT_BRACE  { assembler.parsePushRegs(registers); }
   | INS_POP GPR                                { assembler.parsePop($2); }
   | INS_XCHG GPR COMMA GPR                     { assembler.parseXchg($2, $4); }
   | INS_ADD GPR COMMA GPR                      { assembler.parseArith($2, $4, ArithType::ADD); }
@@ -105,6 +108,10 @@ Directive:
 IndirOperand:
     SYMBOL                                     { operand->adrType = AdrType::MDIR_SYM; operand->symbol = $1; }
   | NUMBER                                     { operand->adrType = AdrType::MDIR_LIT; operand->literal = $1; }
+
+Registers:
+    GPR                                        { registers.clear(); registers.push_back($1); }
+  | Registers COMMA GPR                        { registers.push_back($3); }  
 
 Operand:
     GPR                                        { operand->adrType = AdrType::REG_DIR; operand->reg = $1; }

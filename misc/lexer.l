@@ -32,6 +32,8 @@
 "["                             { return LEFT_BRACKET; }
 "]"                             { return RIGHT_BRACKET; }
 ","                             { return COMMA; }
+"{"                             { return LEFT_BRACE; }
+"}"                             { return RIGHT_BRACE; }
 
 "\n"                            { lineNum++; return ENDL; }
 

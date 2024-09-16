@@ -161,6 +161,17 @@ void Assembler::parsePush(uint8_t gpr)
     currentSection->addData(0x00'00'00'81 | (sp << 12) | ((disp & 0xF) << 16) | (gpr << 20) | ((disp & 0xFF0) << 20));
 }
 
+void Assembler::parsePushRegs(std::vector<std::uint8_t> regs){
+    if (currentSection == nullptr)
+    {
+        throw "Nije definisana sekcija!";
+    }
+    for (const std::uint8_t &reg : regs)
+    {
+        parsePush(reg);
+    }
+}
+
 void Assembler::parsePop(uint8_t gpr)
 {
     if (currentSection == nullptr)

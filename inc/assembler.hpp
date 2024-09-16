@@ -15,6 +15,8 @@ public:
     void operator=(Assembler const &) = delete;
 
     // instructions
+    void parsePushRegs(std::vector<std::uint8_t> regs);
+
     void parseHalt();
     void parseInt();
     void parseIret();
