@@ -108,7 +108,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
 void Linker::placeSections(std::map<std::string, uint32_t> &sectionAddresses, std::vector<std::string> &files)
 {
 
-    // if any symbol is not defined, throw error
+    // simbol nije definisan
     for (auto &symbol : globalSymbolTable)
     {
         if (!symbol.second.isDefined)
@@ -123,7 +123,7 @@ void Linker::placeSections(std::map<std::string, uint32_t> &sectionAddresses, st
     {
         if (globalSectionTable.find(name) == globalSectionTable.end())
         {
-            std::cerr << "Error: Sekcija " << name << " nije definisana." << std::endl;
+            std::cerr << "Error: Sekcija " << name << " nije pronadjena." << std::endl;
             exit(-1);
         }
 
@@ -138,10 +138,27 @@ void Linker::placeSections(std::map<std::string, uint32_t> &sectionAddresses, st
             offset += section.data.size();
         }
     }
+
 }
 
 void Linker::relocation(std::map<std::string, uint32_t> &sectionAddresses)
 {
+
+    for (const auto &[name1, section1] : globalSectionTable)
+    {
+        for (const auto &[name2, section2] : globalSectionTable)
+        {
+            if (name1 != name2)
+            {
+                if (sectionAddresses[name1] <= sectionAddresses[name2] && sectionAddresses[name1] + section1.data.size() > sectionAddresses[name2])
+                {
+                    std::cerr << "Error: Sekcije " << name1 << " i " << name2 << " se preklapaju." << std::endl;
+                    exit(-1);
+                }
+            }
+        }
+    }
+
     for (auto &section : globalSectionTable)
     {
         for (auto &rel : section.second.relocations)

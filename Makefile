@@ -27,13 +27,13 @@ misc/lex.yy.cpp: misc/lexer.l misc/parser.tab.hpp
 	flex -o misc/lex.yy.cpp misc/lexer.l
 
 assembler: $(SOURCE_ASSEMBLER) | $(GEN_INCLUDE_ASSEMBLER)
-	g++ -o assembler -g -Og $(^) -Iinc -Imisc
+	g++ -std=c++17 -o assembler -g -Og $(^) -Iinc -Imisc 
 
 linker: $(SOURCE_LINKER)
-	g++ -o linker -g -Og $(^) -Iinc
+	g++ -std=c++17 -o linker -g -Og $(^) -Iinc
 
 emulator: $(SOURCE_EMULATOR)
-	g++ -o emulator -g -Og $(^) -Iinc
+	g++ -std=c++17 -o emulator -g -Og $(^) -Iinc
 
 
 clean:

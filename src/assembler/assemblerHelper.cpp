@@ -10,6 +10,11 @@ void Assembler::fixRelocations()
         for (auto &reloc : section.relocations)
         {
             auto it = symbolTable.find(reloc.symbol);
+            if(it == symbolTable.end())
+            {
+                std::cout << "Error: Simbol: (" << reloc.symbol << ") nije pronadjen!" << std::endl;
+                exit(-1);
+            }
             if (!it->second.isGlobal)
             {
                 reloc.symbol = section.name;
@@ -17,6 +22,8 @@ void Assembler::fixRelocations()
             }
         }
     }
+
+    
 }
 
 void Assembler::printTables()

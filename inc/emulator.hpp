@@ -46,7 +46,7 @@ public:
     
 
 private:
-    Emulator() {}
+    Emulator(): memory(1ull<<32) {}
     ~Emulator() {}
 
     std::vector<uint8_t> memory;

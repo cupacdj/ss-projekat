@@ -26,16 +26,16 @@ void Emulator::loadFile(std::ifstream &input_file)
             std::string byteStr = line.substr(i, 2);
             uint8_t byte = std::stoul(byteStr, nullptr, 16);
 
-            if (address >= memory.size())
-            {
-                memory.resize(address + 1);
-            }
+            // if (address >= memory.size())
+            // {
+            //     memory.resize(address + 1);
+            // }
             memory[address] = byte;
             // print Memory
             // std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)memory[address] << " ";
             address++;
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 }
 
@@ -53,7 +53,6 @@ void Emulator::execute()
 
     while (true)
     {
-        std::cout << "PC: " << std::hex << pc << std::endl;
         getInstruction();
     }
 }
@@ -81,49 +80,37 @@ void Emulator::getInstruction()
     pc += 4;
     uint8_t opcode = instr[0];
     opcode = (opcode >> 4) & 0x0F;
-    std::cout << "Opcode: " << std::hex << (int)opcode << std::endl;
     switch (opcode)
     {
     case Instructions::HALT:
-        std::cout << "HALT" << std::endl;
         printEmulator();
         exit(0);
         break;
     case Instructions::INT:
-        std::cout << "INT" << std::endl;
         executeInt();
         break;
     case Instructions::CALL:
-        std::cout << "CALL" << std::endl;
         executeCall(instr);
         break;
     case Instructions::JUMP:
-        std::cout << "JUMP" << std::endl;
         executeJump(instr);
         break;
     case Instructions::XCHG:
-        std::cout << "XCHG" << std::endl;
         executeXchg(instr);
         break;
     case Instructions::ARIT:
-        std::cout << "ARIT" << std::endl;
         executeArit(instr);
         break;
     case Instructions::LOGI:
-        std::cout << "LOGI" << std::endl;
         executeLogi(instr);
-
         break;
     case Instructions::SH:
-        std::cout << "SH" << std::endl;
         executeSh(instr);
         break;
     case Instructions::ST:
-        std::cout << "ST" << std::endl;
         executeSt(instr);
         break;
     case Instructions::LD:
-        std::cout << "LD" << std::endl;
         executeLd(instr);
         break;
     default:

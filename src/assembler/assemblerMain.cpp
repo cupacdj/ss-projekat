@@ -48,11 +48,14 @@ int main(int argc, char *argv[])
 
     asmblr.fixRelocations();
 
+    
+
     asmblr.writeToFile(output_file);
 
-    //asmblr.printTables();
+    asmblr.printTables();
 
     output_file.close();
+
 
     return 0;
 }
