@@ -96,6 +96,7 @@ enum AdrType
     REG_DIR,
     REG_IND,
     REG_LIT,
+    REG_REG
 };
 
 struct Operand
@@ -103,6 +104,8 @@ struct Operand
     uint32_t literal;
     std::string symbol;
     uint8_t reg;
+    uint8_t reg1;
+    uint8_t reg2;
     AdrType adrType;
 };
 

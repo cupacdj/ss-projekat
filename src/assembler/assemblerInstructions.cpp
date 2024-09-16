@@ -257,7 +257,13 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
     uint8_t pc = 15;
     uint8_t disp = 4;
 
-    if (op->adrType == AdrType::IMMED || op->adrType == AdrType::MDIR_LIT)
+    if(op->adrType == AdrType::REG_REG){
+        uint8_t reg1 = op->reg1;
+        uint8_t reg2 = op->reg2;
+        // ld (reg1 + reg2)
+        currentSection->addData(0x00'00'00'92 | (reg1 << 8) | (reg2 << 20) | (gpr << 12));
+    }
+    else if (op->adrType == AdrType::IMMED || op->adrType == AdrType::MDIR_LIT)
     {
         size_t lit = op->literal;
 
@@ -317,7 +323,7 @@ void Assembler::parseLd(Operand *op, uint8_t gpr)
     }
     else
     {
-        throw "Neispravno adresiranje";
+        throw "Neispravno load adresiranje";
     }
 }
 
@@ -329,13 +335,20 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
     }
     if (op->adrType == AdrType::IMMED || op->adrType == AdrType::SYMB || op->adrType == AdrType::REG_DIR)
     {
-        throw "Neispravno adresiranje";
+        throw "Neispravno store adresiranje";
     }
 
     uint8_t pc = 15;
     uint8_t disp = 4;
 
-    if (op->adrType == AdrType::MDIR_LIT)
+    if(op->adrType == AdrType::REG_REG)
+    {
+        uint8_t reg1 = op->reg1;
+        uint8_t reg2 = op->reg2;
+        // st (reg1 + reg2)
+        currentSection->addData(0x00'00'00'80 | (reg1 << 8) | (reg2 << 12) | (gpr << 20));
+    }
+    else if (op->adrType == AdrType::MDIR_LIT)
     {
         size_t lit = op->literal;
 
@@ -377,7 +390,7 @@ void Assembler::parseSt(uint8_t gpr, Operand *op)
     }
     else
     {
-        throw "Neispravno adresiranje";
+        throw "Neispravno store adresiranje";
     }
 }
 
