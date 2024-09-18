@@ -101,7 +101,7 @@ Directive:
   | DIR_SECTION SYMBOL                         { assembler.parseSection($2); }
   | DIR_WORD SYM_VAL_LIST                      { assembler.parseWord(symbolList); }
   | DIR_SKIP NUMBER                            { assembler.parseSkip($2); }
-  | DIR_WEAK SYMBOL                            { assembler.parseWeak(symbolList); }
+  | DIR_WEAK SYMLIST                           { assembler.parseWeak(symbolList); }
 
 IndirOperand:
     SYMBOL                                     { operand->adrType = AdrType::MDIR_SYM; operand->symbol = $1; }

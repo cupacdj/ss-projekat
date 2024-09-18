@@ -75,6 +75,7 @@ void Linker::makeTextFile(std::string file)
                 << std::setw(10) << "Address"
                 << std::setw(10) << "Global"
                 << std::setw(10) << "Defined"
+                << std::setw(10) << "Weak"
                 << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : globalSymbolTable)
@@ -83,6 +84,7 @@ void Linker::makeTextFile(std::string file)
                     << std::setw(10) << symbol.address
                     << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                     << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                    << std::setw(10) << (symbol.isWeak ? "Yes" : "No")
                     << std::setw(15) << symbol.section << std::endl;
     }
     output_file << std::endl;
@@ -137,24 +139,20 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
         {
             if (globalSymbolTable[name].isDefined)
             {
-                if(globalSymbolTable[name].isWeak && symbol.isGlobal)
+                if(globalSymbolTable[name].isWeak && !symbol.isWeak)
                 {
-                globalSymbolTable[name] = symbol;
                 globalSymbolTable[name].isWeak = false;
                 globalSymbolTable[name].isGlobal = true; 
-                globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+                globalSymbolTable[name].address = globalSectionTable[symbol.section].data.size() + symbol.address;
                 }
-                else if(globalSymbolTable[name].isGlobal && symbol.isWeak)
-                {
-                globalSymbolTable[name] = symbol;
-                globalSymbolTable[name].isWeak = false;
-                globalSymbolTable[name].isGlobal = true; 
-                globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
-                }
-                else
+                else if(!globalSymbolTable[name].isWeak && !symbol.isWeak)
                 {
                     std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
                     exit(-1);
+                }
+                else if(!globalSymbolTable[name].isWeak && symbol.isWeak || globalSymbolTable[name].isWeak && symbol.isWeak)
+                {
+                    
                 }
             }
             else
@@ -344,9 +342,7 @@ void Linker::readFromFile(std::ifstream &input_file)
 
         input_file.read(reinterpret_cast<char *>(&symbol.isWeak), sizeof(symbol.isWeak));
 
-        if(symbol.isGlobal){
-            symbol.isWeak = false;
-        }
+        symbol.isGlobal = true;
 
         localSymbolTable[symbol.name] = symbol;
     }

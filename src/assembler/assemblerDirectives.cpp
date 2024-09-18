@@ -67,5 +67,6 @@ void Assembler::parseWeak(std::vector<std::string> symbol)
     for (const std::string &sym : symbol)
     {
         symbolTable[sym].isWeak = true;
+        symbolTable[sym].isGlobal = true;
     }
 }

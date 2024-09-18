@@ -105,6 +105,7 @@ void Assembler::makeTextFile(std::string file)
                 << std::setw(10) << "Address"
                 << std::setw(10) << "Global"
                 << std::setw(10) << "Defined"
+                << std::setw(10) << "Weak"
                 << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : symbolTable)
@@ -113,6 +114,7 @@ void Assembler::makeTextFile(std::string file)
                     << std::setw(10) << symbol.address
                     << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                     << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                    << std::setw(10) << (symbol.isWeak ? "Yes" : "No")
                     << std::setw(15) << symbol.section << std::endl;
     }
     output_file << std::endl;
@@ -213,7 +215,7 @@ void Assembler::writeToFile(std::ofstream &output_file)
 
     for (const auto &symbol : symbolTable)
     {
-        if (symbol.second.isGlobal || symbol.second.isWeak) 
+        if (symbol.second.isGlobal) 
         {
             // symbol name and name size
             uint32_t nameSize = symbol.first.size();

@@ -8,7 +8,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/assembler",
-        "args": ["-o", "tests/main.o", "tests/main.s"],
+        "args": ["-o", "weak1.s", "weak1.s"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],
