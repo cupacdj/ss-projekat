@@ -127,6 +127,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
 {
     for (const auto &[name, symbol] : symbolTable)
     {
+        if (!symbol.isDefined) continue;
         if (globalSymbolTable.find(name) == globalSymbolTable.end())
         {
             globalSymbolTable.emplace(name, symbol);
@@ -134,12 +135,12 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
         }
         else
         {
-            if (globalSymbolTable[name].isDefined && symbol.isDefined)
+            if (globalSymbolTable[name].isDefined)
             {
                 std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
                 exit(-1);
             }
-            else if (symbol.isDefined)
+            else
             {
                 globalSymbolTable[name] = symbol;
                 globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
@@ -323,6 +324,8 @@ void Linker::readFromFile(std::ifstream &input_file)
         input_file.read(&symbol.section[0], sectionSize);
 
         input_file.read(reinterpret_cast<char *>(&symbol.isDefined), sizeof(symbol.isDefined));
+
+        symbol.isGlobal = true;
 
         localSymbolTable[symbol.name] = symbol;
     }
