@@ -24,7 +24,7 @@
 
 %token <strVal> LABEL
 
-%token PLUS DOLLAR LEFT_BRACKET RIGHT_BRACKET COMMA
+%token PLUS DOLLAR LEFT_BRACKET RIGHT_BRACKET COMMA ADDSHL ADDSHR
        
 %token ENDL COMMENT
 
@@ -93,6 +93,8 @@ Instruction:
   | INS_ST GPR COMMA Operand                   { assembler.parseSt($2, operand); }
   | INS_CSRRD CSR COMMA GPR                    { assembler.parseCsrrd($2, $4); }
   | INS_CSRWR GPR COMMA CSR                    { assembler.parseCsrwr($2, $4); }
+  | INS_ADD GPR COMMA GPR ADDSHL NUMBER        { assembler.parseAddShl($2, $4, $6); } 
+  | INS_ADD GPR COMMA GPR ADDSHR NUMBER        { assembler.parseAddShr($2, $4, $6); }
 
 
 Directive:

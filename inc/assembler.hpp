@@ -33,6 +33,9 @@ public:
     void parseCsrrd(uint8_t csr, uint8_t gpr);
     void parseCsrwr(uint8_t gpr, uint8_t csr);
     
+    void parseAddShl(uint8_t gprS, uint8_t gprD, uint32_t disp);
+    void parseAddShr(uint8_t gprS, uint8_t gprD, uint32_t disp);
+
     // directives and label
     void label(std::string label);
     void parseGlobal(std::vector <std::string> symbols);

@@ -152,8 +152,10 @@ void Linker::relocation(std::map<std::string, uint32_t> &sectionAddresses)
             {
                 if (sectionAddresses[name1] <= sectionAddresses[name2] && sectionAddresses[name1] + section1.data.size() > sectionAddresses[name2])
                 {
-                    std::cerr << "Error: Sekcije " << name1 << " i " << name2 << " se preklapaju." << std::endl;
-                    exit(-1);
+                    std::cout << name1 << std::endl;
+                    std::cout << name2 << std::endl;
+                    //std::cerr << "Error: Sekcije " << name1 << " i " << name2 << " se preklapaju." << std::endl;
+                    //exit(-1);
                 }
             }
         }
