@@ -5,9 +5,9 @@
 *.s
 *.sh
 *.txt
-assembler
-linker
-emulator
+/assembler
+/linker
+/emulator
 parser.tab.cpp
 parser.tab.hpp
 lex.yy.cpp

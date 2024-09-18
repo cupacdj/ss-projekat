@@ -8,13 +8,42 @@ extern FILE *yyin;
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4)
+    std::string input_filename, output_filename;
+
+    for (int i = 1; i < argc; i++)
     {
-        std::cout << "Potrebno je 3 argumenta a data su: " << argc - 1 << "!" << std::endl;
+        if (std::string(argv[i]) == "-o")
+        {
+            if (i + 1 < argc)
+            {
+                output_filename = argv[i + 1];
+                i++;
+            }
+            else
+            {
+                std::cout << "Neispravno koriscenje opcije -o" << std::endl;
+                return -1;
+            }
+        }
+        else
+        {
+            input_filename = argv[i];
+        }
+    }
+
+    if (input_filename.empty())
+    {
+        std::cout << "Nedostaje ulazni fajl" << std::endl;
         return -1;
     }
 
-    std::ofstream output_file(argv[2], std::ios::binary);
+    if (output_filename.empty())
+    {
+        std::cout << "Nedostaje izlazni fajl" << std::endl;
+        return -1;
+    }
+
+    std::ofstream output_file(output_filename, std::ios::binary);
 
     if (!output_file.is_open())
     {
@@ -22,7 +51,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    FILE *input_file = fopen(argv[3], "r");
+    FILE *input_file = fopen(input_filename.c_str(), "r");
     if (!input_file)
     {
         std::cout << "Neuspesno otvaranje fajla " << argv[3] << std::endl;
@@ -48,17 +77,13 @@ int main(int argc, char *argv[])
 
     asmblr.fixRelocations();
 
-    
-
     asmblr.writeToFile(output_file);
-
-    //asmblr.printTables();
-
-    asmblr.makeTextFile(argv[2]);
 
     output_file.close();
 
-    
+    // asmblr.printTables();
+
+    asmblr.makeTextFile(argv[2]);
 
     return 0;
 }

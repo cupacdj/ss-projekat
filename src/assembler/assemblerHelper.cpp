@@ -97,7 +97,6 @@ void Assembler::makeTextFile(std::string file)
                 << std::setw(10) << "Address"
                 << std::setw(10) << "Global"
                 << std::setw(10) << "Defined"
-                << std::setw(10) << "Weak"
                 << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : symbolTable)
