@@ -4,6 +4,7 @@
 *.S
 *.s
 *.sh
+*.txt
 assembler
 linker
 emulator

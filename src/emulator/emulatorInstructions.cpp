@@ -153,6 +153,15 @@ void Emulator::executeArit(std::vector<uint8_t> &instruction)
     switch (instr.mode)
     {
     case 0x00:
+        // inst.d > 0 then shift gpr[instc] left by inst.d times
+        if (instr.D > 0)
+        {
+            gpr[instr.B] = gpr[instr.B] << instr.D;
+        }
+        else if(instr.D < 0)
+        {
+            gpr[instr.B] = gpr[instr.B] >> (-instr.D);
+        }
         gpr[instr.A] = gpr[instr.B] + gpr[instr.C];
         break;
     case 0x01:

@@ -229,6 +229,7 @@ void Assembler::parseAddShr(uint8_t gprS, uint8_t gprD, uint32_t disp)
     {
         throw "Prevelik broj za siftovanje!";
     }
+    disp = -disp;
     currentSection->addData(0x00'00'00'50 | (gprD << 8) | (gprD << 12) | ((disp & 0xF) << 16) | (gprS << 20) | ((disp & 0xFF0) << 24));
 }
 
