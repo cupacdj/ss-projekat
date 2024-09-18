@@ -44,6 +44,7 @@ public:
     void printTables();
     void writeToFile(std::ofstream &output_file);
     void fixRelocations();
+     void makeTextFile(std::string file);
 
 private:
     Assembler() {}

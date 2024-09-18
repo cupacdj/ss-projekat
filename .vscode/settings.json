@@ -72,6 +72,9 @@
         "forward_list": "cpp",
         "span": "cpp",
         "__tree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "cstdarg": "cpp",
+        "istream": "cpp",
+        "sstream": "cpp"
     }
 }

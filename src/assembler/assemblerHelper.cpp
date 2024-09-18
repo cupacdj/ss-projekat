@@ -87,6 +87,65 @@ void Assembler::printTables()
     }
 }
 
+void Assembler::makeTextFile(std::string file)
+{
+    file += ".txt";
+    std::ofstream output_file(file);
+
+    output_file << "Symbol Table:" << std::endl;
+    output_file << std::setw(20) << "Name"
+                << std::setw(10) << "Address"
+                << std::setw(10) << "Global"
+                << std::setw(10) << "Defined"
+                << std::setw(10) << "Weak"
+                << std::setw(15) << "Section" << std::endl;
+
+    for (const auto &[name, symbol] : symbolTable)
+    {
+        output_file << std::setw(20) << name
+                    << std::setw(10) << symbol.address
+                    << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
+                    << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                    << std::setw(15) << symbol.section << std::endl;
+    }
+    output_file << std::endl;
+
+    output_file << "Section Table:" << std::endl;
+    for (const auto &[name, section] : sectionTable)
+    {
+        output_file << "Section: " << name << std::endl;
+        output_file << "Data: \n";
+
+        for (int i = 0; i < section.data.size(); i++)
+        {
+            output_file << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(section.data[i]) << " ";
+
+            if (i % 16 == 15)
+            {
+                output_file << std::endl;
+            }
+            else if (i % 4 == 3)
+            {
+                output_file << " ";
+            }
+        }
+        output_file << std::endl;
+
+        output_file << "Relocations:" << std::endl;
+        output_file << std::setfill(' ')
+                    << std::setw(10) << "Offset"
+                    << std::setw(20) << "Symbol"
+                    << std::setw(10) << "Addend" << std::endl;
+        for (const auto &rel : section.relocations)
+        {
+            output_file << std::setw(10) << rel.offset
+                        << std::setw(20) << rel.symbol
+                        << std::setw(10) << rel.addend << std::endl;
+        }
+        output_file << std::endl;
+    }
+}
+
 void Assembler::writeToFile(std::ofstream &output_file)
 {
     // write number of sections

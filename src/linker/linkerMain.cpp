@@ -88,5 +88,7 @@ int main(int argc, char *argv[])
     std::ofstream outfile(output, std::ios::binary);
     linker.writeToFile(outfile, sectionAddresses);
 
+    linker.makeTextFile(output);
+
     return 0;
 }
