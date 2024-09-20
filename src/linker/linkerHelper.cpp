@@ -131,7 +131,10 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
         if (globalSymbolTable.find(name) == globalSymbolTable.end())
         {
             globalSymbolTable.emplace(name, symbol);
-            globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+             if (globalSectionTable.find(symbol.section) != globalSectionTable.end())
+            {
+                globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+            }
         }
         else
         {
