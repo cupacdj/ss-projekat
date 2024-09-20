@@ -35,7 +35,9 @@
         INS_CSRRD INS_CSRWR
 
 %token  DIR_GLOBAL DIR_EXTERN DIR_SECTION DIR_WORD
-        DIR_SKIP
+        DIR_SKIP DIR_TYPE
+
+%token <strVal> DATA NOTYPE FUNC
 
 %token <number> NUMBER
 
@@ -43,6 +45,8 @@
 %token <csr> CSR
 
 %token <strVal> SYMBOL
+
+%type <strVal> Types
 
 
 %%
@@ -101,6 +105,13 @@ Directive:
   | DIR_SECTION SYMBOL                         { assembler.parseSection($2); }
   | DIR_WORD SYM_VAL_LIST                      { assembler.parseWord(symbolList); }
   | DIR_SKIP NUMBER                            { assembler.parseSkip($2); }
+  | DIR_TYPE SYMBOL COMMA Types                { assembler.parseType($2, $4); }
+  | DIR_TYPE SYMBOL Types                      { assembler.parseType($2, $3); }
+
+Types:
+    DATA                                       { $$ = $1; }
+  | FUNC                                       { $$ = $1; }
+  | NOTYPE                                     { $$ = $1; }
 
 IndirOperand:
     SYMBOL                                     { operand->adrType = AdrType::MDIR_SYM; operand->symbol = $1; }

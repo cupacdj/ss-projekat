@@ -39,6 +39,7 @@ public:
     void parseSection(std::string section);
     void parseWord(std::vector <std::string> symbols);
     void parseSkip(uint8_t num);
+    void parseType(std::string symb, std::string type);
     
     // helper functions
     void printTables();

@@ -11,6 +11,7 @@ void Linker::printTables(std::map<std::string, Symbol> &symbolTable, std::map<st
               << std::setw(10) << "Address"
               << std::setw(10) << "Global"
               << std::setw(10) << "Defined"
+              << std::setw(10) << "Type"
               << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : symbolTable)
@@ -19,6 +20,7 @@ void Linker::printTables(std::map<std::string, Symbol> &symbolTable, std::map<st
                   << std::setw(10) << symbol.address
                   << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                   << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                  << std::setw(10) << (int)symbol.type
                   << std::setw(15) << symbol.section << std::endl;
     }
     std::cout << std::endl;
@@ -75,6 +77,7 @@ void Linker::makeTextFile(std::string file)
                 << std::setw(10) << "Address"
                 << std::setw(10) << "Global"
                 << std::setw(10) << "Defined"
+                << std::setw(10) << "Type"
                 << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : globalSymbolTable)
@@ -83,6 +86,7 @@ void Linker::makeTextFile(std::string file)
                     << std::setw(10) << symbol.address
                     << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                     << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                    << std::setw(10) << (int)symbol.type
                     << std::setw(15) << symbol.section << std::endl;
     }
     output_file << std::endl;
@@ -127,14 +131,26 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
 {
     for (const auto &[name, symbol] : symbolTable)
     {
-        if (!symbol.isDefined) continue;
+
         if (globalSymbolTable.find(name) == globalSymbolTable.end())
         {
-            globalSymbolTable.emplace(name, symbol);
-            globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+            globalSymbolTable[name] = symbol;
+            if (globalSectionTable.find(symbol.section) != globalSectionTable.end())
+            {
+                globalSymbolTable[name].address += globalSectionTable[symbol.section].data.size();
+            }
         }
         else
         {
+            if (globalSymbolTable[name].type != symbol.type)
+            {
+                std::cerr << "Error: Simbol " << name << " je definisan kao razlicit tip." << std::endl;
+                exit(-1);
+            }
+            if (!symbol.isDefined)
+            {
+                continue;
+            }
             if (globalSymbolTable[name].isDefined)
             {
                 std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
@@ -198,12 +214,10 @@ void Linker::placeSections(std::map<std::string, uint32_t> &sectionAddresses, st
             offset += section.data.size();
         }
     }
-
 }
 
 void Linker::relocation(std::map<std::string, uint32_t> &sectionAddresses)
 {
-
     for (const auto &[name1, section1] : globalSectionTable)
     {
         for (const auto &[name2, section2] : globalSectionTable)
@@ -222,7 +236,7 @@ void Linker::relocation(std::map<std::string, uint32_t> &sectionAddresses)
     for (auto &section : globalSectionTable)
     {
         for (auto &rel : section.second.relocations)
-        { 
+        {
             uint32_t symbolAddress = 0;
             if (globalSectionTable.find(rel.symbol) != globalSectionTable.end())
             {
@@ -325,6 +339,8 @@ void Linker::readFromFile(std::ifstream &input_file)
 
         input_file.read(reinterpret_cast<char *>(&symbol.isDefined), sizeof(symbol.isDefined));
 
+        input_file.read(reinterpret_cast<char *>(&symbol.type), sizeof(symbol.type));
+
         symbol.isGlobal = true;
 
         localSymbolTable[symbol.name] = symbol;
@@ -348,10 +364,10 @@ void Linker::readFiles(std::vector<std::string> files)
     }
 }
 
-void Linker::writeToFile(std::ofstream& output_file, std::map<std::string, uint32_t> &sectionAddresses)
+void Linker::writeToFile(std::ofstream &output_file, std::map<std::string, uint32_t> &sectionAddresses)
 {
-    
-    for (const auto&[name, section] : globalSectionTable)
+
+    for (const auto &[name, section] : globalSectionTable)
     {
         size_t startAddr = sectionAddresses[name];
         for (int i = 0; i < section.data.size();)
@@ -359,7 +375,7 @@ void Linker::writeToFile(std::ofstream& output_file, std::map<std::string, uint3
             output_file << std::hex << std::setw(8) << std::setfill('0') << std::right << startAddr + i << ": ";
             for (int j = 0; j < 8 && i < section.data.size(); j++, i++)
             {
-                output_file << std::hex << std::setw(2) << std::setfill('0')<< std::right << static_cast<int>(section.data[i]) << " ";
+                output_file << std::hex << std::setw(2) << std::setfill('0') << std::right << static_cast<int>(section.data[i]) << " ";
             }
             output_file << std::endl;
         }

@@ -34,6 +34,7 @@ void Assembler::printTables()
               << std::setw(10) << "Address"
               << std::setw(10) << "Global"
               << std::setw(10) << "Defined"
+              << std::setw(10) << "Type" 
               << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : symbolTable)
@@ -42,6 +43,7 @@ void Assembler::printTables()
                   << std::setw(10) << symbol.address
                   << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                   << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                  << std::setw(10) << (int)symbol.type
                   << std::setw(15) << symbol.section << std::endl;
     }
     std::cout << std::endl;
@@ -97,6 +99,7 @@ void Assembler::makeTextFile(std::string file)
                 << std::setw(10) << "Address"
                 << std::setw(10) << "Global"
                 << std::setw(10) << "Defined"
+                << std::setw(10) << "Type"
                 << std::setw(15) << "Section" << std::endl;
 
     for (const auto &[name, symbol] : symbolTable)
@@ -105,6 +108,7 @@ void Assembler::makeTextFile(std::string file)
                     << std::setw(10) << symbol.address
                     << std::setw(10) << (symbol.isGlobal ? "Yes" : "No")
                     << std::setw(10) << (symbol.isDefined ? "Yes" : "No")
+                    << std::setw(10) << (int)symbol.type
                     << std::setw(15) << symbol.section << std::endl;
     }
     output_file << std::endl;
@@ -222,6 +226,9 @@ void Assembler::writeToFile(std::ofstream &output_file)
 
             // is defined
             output_file.write(reinterpret_cast<const char *>(&symbol.second.isDefined), sizeof(symbol.second.isDefined));
+        
+            // type
+            output_file.write(reinterpret_cast<const char *>(&symbol.second.type), sizeof(symbol.second.type));
         }
     }
 }

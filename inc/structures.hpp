@@ -6,6 +6,12 @@
 #include <map>
 #include <cstdint>
 
+enum class DataType
+{
+    NOTYPE,
+    DATA,
+    FUNC
+};
 struct Symbol
 {
     std::string name;
@@ -13,9 +19,10 @@ struct Symbol
     bool isGlobal;
     bool isDefined;
     std::string section;
+    DataType type;
 
-    Symbol() : address(0), isGlobal(false), isDefined(false), section("") {}
-    Symbol(uint32_t address, bool isGlobal, bool isDefined, std::string section) : address(address), isGlobal(isGlobal), isDefined(isDefined), section(section) {}
+    Symbol() : address(0), isGlobal(false), isDefined(false), section(""), type(DataType::NOTYPE) {}
+    Symbol(uint32_t address, bool isGlobal, bool isDefined, std::string section, DataType type = DataType::NOTYPE) : address(address), isGlobal(isGlobal), isDefined(isDefined), section(section), type(type) {}
 };
 
 struct Relocation
@@ -56,6 +63,8 @@ enum Instructions
     ST,
     LD
 };
+
+
 
 enum JumpType
 {

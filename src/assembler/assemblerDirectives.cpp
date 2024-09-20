@@ -61,3 +61,19 @@ void Assembler::parseSkip(uint8_t num)
         currentSection->data.push_back(0);
     }
 }
+
+void Assembler::parseType(std::string symb, std::string type)
+{
+    if (type == "FUNC")
+    {
+        symbolTable[symb].type = DataType::FUNC;
+    }
+    else if (type == "DATA")
+    {
+        symbolTable[symb].type = DataType::DATA;
+    }
+    else
+    {
+        symbolTable[symb].type = DataType::NOTYPE;
+    }
+}
