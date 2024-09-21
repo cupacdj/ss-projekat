@@ -127,7 +127,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
 {
     for (const auto &[name, symbol] : symbolTable)
     {
-        if (!symbol.isDefined) continue;
+        
         if (globalSymbolTable.find(name) == globalSymbolTable.end())
         {
             globalSymbolTable.emplace(name, symbol);
@@ -138,6 +138,7 @@ void Linker::mergeTables(std::map<std::string, Symbol> &symbolTable, std::map<st
         }
         else
         {
+            if (!symbol.isDefined) continue;
             if (globalSymbolTable[name].isDefined)
             {
                 std::cerr << "Error: Simbol " << name << " je definisan vise puta." << std::endl;
