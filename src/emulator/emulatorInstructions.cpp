@@ -155,11 +155,11 @@ void Emulator::executeArit(std::vector<uint8_t> &instruction)
     case 0x00:
         if (instr.D > 0)
         {
-            gpr[instr.A] = gpr[instr.B] << instr.D + gpr[instr.C];
+            gpr[instr.A] = (gpr[instr.B] << instr.D) + gpr[instr.C];
         }
         else if (instr.D < 0)
         {
-            gpr[instr.A] = gpr[instr.B] >> (-instr.D) + gpr[instr.C];
+            gpr[instr.A] = (gpr[instr.B] >> (-instr.D)) + gpr[instr.C];
         }
         else
         {
